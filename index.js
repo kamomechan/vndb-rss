@@ -1,17 +1,23 @@
 import axios from "axios";
 import RSS from "rss";
+import express from "express";
+
+const app = express();
+const port = process.env.PORT || 3000;
 
 async function generateRSS() {
   const feed = new RSS({
-    title: "VNDB 免费中文作品",
+    title: "中文发布",
+    description: "中文发布",
     site_url: "https://vndb.org",
+    feed_url: "https://rss.tia-chan.top", // 替换为你的实际网址
+    language: "zh",
   });
 
   try {
     const response = await axios.post(
       "https://api.vndb.org/kana/release",
       {
-        // 修正后的有效 filters 结构
         filters: [
           "and",
           ["or", ["lang", "=", "zh-Hans"], ["lang", "=", "zh-Hant"]],
@@ -44,14 +50,29 @@ async function generateRSS() {
       });
     });
 
-    console.log(feed.xml({ indent: true }));
+    return feed.xml({ indent: true });
   } catch (error) {
     console.error("错误详情:", {
       status: error.response?.status,
       message: error.response?.data,
       request: error.config?.data,
     });
+    throw error;
   }
 }
 
-generateRSS();
+// 首页直接显示 RSS XML 内容
+app.get("/", async (req, res) => {
+  try {
+    const rssXml = await generateRSS();
+    res.type("application/xml");
+    res.send(rssXml);
+  } catch (error) {
+    res.status(500).send("生成 RSS 时出错");
+  }
+});
+
+// 启动服务器
+app.listen(port, () => {
+  console.log(`服务器运行在 http://localhost:${port}`);
+});
