@@ -4,11 +4,12 @@ import express from "express";
 
 const app = express();
 const port = process.env.PORT || 3000;
+const host = "127.0.0.1";
 
 async function generateRSS() {
   const feed = new RSS({
-    title: "中文发布",
-    description: "中文发布",
+    title: "民间汉化",
+    description: "筛选免费且非官方的汉化",
     site_url: "https://vndb.org",
     feed_url: "https://rss.tia-chan.top", // 替换为你的实际网址
     language: "zh",
@@ -21,8 +22,8 @@ async function generateRSS() {
         filters: [
           "and",
           ["or", ["lang", "=", "zh-Hans"], ["lang", "=", "zh-Hant"]],
-          ["freeware", "=", true],
-          ["official", "=", 1],
+          ["official", "!=", 1],
+          ["freeware", "=", 1],
           ["released", "<=", "today"],
         ],
         fields: "id,title,released,vns.title,vns.alttitle",
@@ -46,7 +47,7 @@ async function generateRSS() {
         }`,
         url: `https://vndb.org/${item.id}`,
         date: new Date(item.released),
-        description: `类型: ${item.title} | 发布日期: ${item.released}`,
+        description: `类型: ${item.title} <br/> 发布日期: ${item.released}`,
       });
     });
 
@@ -73,6 +74,6 @@ app.get("/", async (req, res) => {
 });
 
 // 启动服务器
-app.listen(port, () => {
+app.listen(port, host, () => {
   console.log(`服务器运行在 http://localhost:${port}`);
 });
