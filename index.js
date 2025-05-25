@@ -9,7 +9,7 @@ const host = "127.0.0.1";
 async function generateRSS() {
   const feed = new RSS({
     title: "民间汉化",
-    description: "筛选免费且非官方的汉化",
+    description: "免费且非官方的中文视觉小说",
     site_url: "https://vndb.org",
     feed_url: "https://rss.tia-chan.top", // 替换为你的实际网址
     language: "zh",
