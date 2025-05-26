@@ -6,6 +6,16 @@ const app = express();
 const port = process.env.PORT || 3000;
 const host = "127.0.0.1";
 
+// 缓存配置
+const CACHE_TTL = 5 * 60 * 1000; // 5分钟缓存时间
+const cache = {
+  "/uo-ch": { data: null, expiresAt: 0 },
+  "/uo-en": { data: null, expiresAt: 0 },
+  "/offi-ch": { data: null, expiresAt: 0 },
+  "/offi-en": { data: null, expiresAt: 0 },
+  "/offi-jp": { data: null, expiresAt: 0 },
+};
+
 /**
  * 生成格式化链接文本
  * @param {Array} extlinks - 链接数组，格式为[{url: string, label?: string}]
@@ -61,6 +71,13 @@ function generateFormatNotes(notes) {
 
 // 通用 RSS 生成函数
 async function generateRSS(req, filters, title, description) {
+  const currentPath = req.path;
+  const now = Date.now();
+  // 检查缓存是否有效
+  if (cache[currentPath].data && cache[currentPath].expiresAt > now) {
+    return cache[currentPath].data;
+  }
+
   const feed = new RSS({
     title: title,
     description: description,
@@ -142,13 +159,24 @@ async function generateRSS(req, filters, title, description) {
       });
     });
 
-    return feed.xml({ indent: true });
+    // 更新缓存
+    const xml = feed.xml({ indent: true });
+    cache[currentPath] = {
+      data: xml,
+      expiresAt: now + CACHE_TTL,
+    };
+    return xml;
   } catch (error) {
     console.error("错误详情:", {
       status: error.response?.status,
       message: error.response?.data,
       request: error.config?.data,
     });
+    // 尝试返回过期缓存（如果有）
+    if (cache[currentPath].data) {
+      console.warn("使用过期缓存作为降级方案");
+      return cache[currentPath].data;
+    }
     throw error;
   }
 }
