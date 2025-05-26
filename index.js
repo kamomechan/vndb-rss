@@ -300,7 +300,7 @@ app.get("/offi-jp", async (req, res) => {
       ["vn", "=", ["olang", "=", "ja"]],
       ["official", "=", 1], // 官方
       ["released", "<=", "today"],
-      ["medium", "=", "in"], //筛选internet download版
+      ["medium", "=", "in"], //筛选 internet download版
     ];
 
     const rssXml = await generateRSS(
