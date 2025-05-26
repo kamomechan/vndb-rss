@@ -21,6 +21,34 @@ app.get("/", (req, res) => {
   `);
 });
 
+/**
+ * 生成格式化链接文本
+ * @param {Array} extlinks - 链接数组，格式为[{url: string, label?: string}]
+ * @param {string} [defaultLabel="link"] - 默认链接文本
+ * @param {string} [separator="</br></br>"] - 链接分隔符
+ * @returns {string} 格式化后的HTML链接文本
+ */
+function generateLinksText(
+  extlinks = [],
+  defaultLabel = "link",
+  separator = "</br></br>"
+) {
+  // 参数校验
+  if (!Array.isArray(extlinks) || extlinks.length === 0) {
+    return "";
+  }
+
+  // 过滤并处理有效链接
+  const validLinks = extlinks
+    .filter((link) => link?.url?.trim())
+    .map(
+      (link) =>
+        `<a href="${encodeURI(link.url)}">${link.label || defaultLabel}</a>`
+    );
+
+  return validLinks.length > 0 ? validLinks.join(separator) + separator : "";
+}
+
 // 通用 RSS 生成函数
 async function generateRSS(req, filters, title, description) {
   const feed = new RSS({
@@ -40,7 +68,7 @@ async function generateRSS(req, filters, title, description) {
         fields: "id,title,alttitle,released,extlinks{url,label},platforms",
         sort: "released",
         reverse: true,
-        results: 5, // 每类返回20条结果
+        results: 3, // 每类返回20条结果
       },
       {
         headers: {
@@ -53,6 +81,7 @@ async function generateRSS(req, filters, title, description) {
 
     response.data.results.forEach((item) => {
       let customTitle;
+      let linksText = generateLinksText(item.extlinks);
 
       // 根据路由类型匹配语言
       const langText = (() => {
@@ -75,20 +104,10 @@ async function generateRSS(req, filters, title, description) {
       //拼接rid链接
       let ridLink = `(<a href="https://vndb.org/${item.id}">${item.id}</a>)`;
 
-      // 使用map遍历并格式化每个链接，然后用join('</br>')添加换行
-      const linksText =
-        item.extlinks
-          ?.map((link) => `<a href="${link.url}">${link.label}</a> `)
-          .join("</br></br>") || "";
-      console.log(linksText);
-
-      //遍历平台
+      // 遍历支持平台
       const platformsText =
-        item.platforms
-          ?.map((platform) => `[${platform}]`) // 为每个平台添加方括号
-          ?.join(" ") || // 用空格连接
-        ""; // 空值保护
-      console.log(platformsText); // 示例输出: "[Windows] [Linux] [Android] [Mac OS]"
+        (item.platforms?.map((platform) => `[${platform}]`).join(" ") || "") +
+        "</br></br>";
 
       // 判断路由是否为中文/日文路由
       if (
@@ -107,7 +126,7 @@ async function generateRSS(req, filters, title, description) {
         title: customTitle,
         url: `https://vndb.org/${item.id}`,
         date: new Date(item.released),
-        description: `${langText} ${ridLink} ${customTitle} ${platformsText}</br></br>${linksText}</br></br>`,
+        description: `${langText} ${ridLink} ${customTitle} ${platformsText}${linksText}notes`,
       });
     });
 
