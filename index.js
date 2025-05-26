@@ -40,7 +40,7 @@ async function generateRSS(req, filters, title, description) {
         fields: "id,title,alttitle,released,extlinks{url,label},platforms",
         sort: "released",
         reverse: true,
-        results: 20, // 每类返回20条结果
+        results: 3, // 每类返回20条结果
       },
       {
         headers: {
@@ -53,6 +53,26 @@ async function generateRSS(req, filters, title, description) {
 
     response.data.results.forEach((item) => {
       let customTitle;
+
+      // 根据路由类型匹配语言
+      const langText = (() => {
+        switch (req.path) {
+          case "/uo-ch":
+            return "[民间汉化]";
+          case "/uo-en":
+            return "[Fan TL]";
+          case "/offi-ch":
+            return "[官方中文]";
+          case "/offi-en":
+            return "[Official TL]";
+          case "/offi-jp":
+            return "[公式日本語]";
+          default:
+            return ""; // 默认返回空字符串
+        }
+      })();
+      // 使用示例
+      console.log(langText); // 根据路由输出对应的标签
 
       // 使用map遍历并格式化每个链接，然后用join('</br>')添加换行
       const linksText =
@@ -86,7 +106,7 @@ async function generateRSS(req, filters, title, description) {
         title: customTitle,
         url: `https://vndb.org/${item.id}`,
         date: new Date(item.released),
-        description: `${customTitle} ${platformsText}</br></br>${linksText}</br></br>`,
+        description: `${langText} ${customTitle} ${platformsText}</br></br>${linksText}</br></br>`,
       });
     });
 
@@ -215,8 +235,8 @@ app.get("/offi-jp", async (req, res) => {
     const rssXml = await generateRSS(
       req,
       filters,
-      "Official TL",
-      "Official English visual novels (including commercial)"
+      "公式日本語",
+      "Official Japanese visual novels (including commercial)"
     );
 
     res.type("application/xml");
@@ -235,4 +255,5 @@ app.listen(port, host, () => {
   console.log(`- Fan TL: http://${host}:${port}/uo-en`);
   console.log(`- 官方中文: http://${host}:${port}/offi-ch`);
   console.log(`- Official TL: http://${host}:${port}/offi-en`);
+  console.log(`- 公式日本語: http://${host}:${port}/offi-jp`);
 });
