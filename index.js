@@ -16,6 +16,7 @@ app.get("/", (req, res) => {
       <li><a href="/uo-en">Fan TL</a></li>
       <li><a href="/offi-ch">官方中文</a></li>
       <li><a href="/offi-en">Official TL</a></li>
+      <li><a href="/offi-jp">公式日本語</a></li>
     </ul>
   `);
 });
@@ -249,8 +250,8 @@ app.listen(port, host, () => {
   console.log(`服务器运行在 http://${host}:${port}`);
   console.log("可用路由:");
   console.log(`- 首页: http://${host}:${port}/`);
-  console.log(`- 非官方中文: http://${host}:${port}/uo-ch`);
-  console.log(`- 非官方英文: http://${host}:${port}/uo-en`);
+  console.log(`- 民间汉化: http://${host}:${port}/uo-ch`);
+  console.log(`- Fan TL: http://${host}:${port}/uo-en`);
   console.log(`- 官方中文: http://${host}:${port}/offi-ch`);
-  console.log(`- 官方英文: http://${host}:${port}/offi-en`);
+  console.log(`- Official TL: http://${host}:${port}/offi-en`);
 });
