@@ -227,7 +227,7 @@ app.get("/offi-jp", async (req, res) => {
       ["lang", "!=", "en"],
       ["lang", "!=", "zh-Hans"],
       ["lang", "!=", "zh-Hant"],
-      ["olang", "=", "ja"],
+      ["vn", "=", ["olang", "=", "ja"]],
       ["official", "=", 1], // 官方
       ["released", "<=", "today"],
     ];
