@@ -49,6 +49,31 @@ function generateLinksText(
   return validLinks.length > 0 ? validLinks.join(separator) + separator : "";
 }
 
+/**
+ * 处理 VNDB 的 notes 字段
+ * @param {string|null} notes - 原始 notes 内容
+ * @returns {string} 处理后的 HTML
+ */
+function generateFormatNotes(notes) {
+  if (notes == null) return ""; // 处理 null/undefined
+
+  // VNDB 格式标记转 HTML
+  return notes
+    .replace(/\[b\](.*?)\[\/b\]/g, "<strong>$1</strong>") // 加粗
+    .replace(/\[i\](.*?)\[\/i\]/g, "<em>$1</em>") // 斜体
+    .replace(/\[u\](.*?)\[\/u\]/g, "<u>$1</u>") // 下划线
+    .replace(/\[s\](.*?)\[\/s\]/g, "<del>$1</del>") // 删除线
+    .replace(/\[url=(.*?)\](.*?)\[\/url\]/g, '<a href="$1">$2</a>') // 链接
+    .replace(
+      /\[spoiler\](.*?)\[\/spoiler\]/g,
+      '<span class="spoiler">$1</span>'
+    ) // 剧透
+    .replace(/\[quote\](.*?)\[\/quote\]/g, "<blockquote>$1</blockquote>") // 引用
+    .replace(/\[code\](.*?)\[\/code\]/g, "<pre><code>$1</code></pre>") // 代码块
+    .replace(/\[raw\](.*?)\[\/raw\]/g, "$1") // 原始文本（移除标记）
+    .replace(/\n/g, "<br/>"); // 换行符转HTML
+}
+
 // 通用 RSS 生成函数
 async function generateRSS(req, filters, title, description) {
   const feed = new RSS({
@@ -65,10 +90,11 @@ async function generateRSS(req, filters, title, description) {
       {
         filters: filters,
         // 请求字段
-        fields: "id,title,alttitle,released,extlinks{url,label},platforms",
+        fields:
+          "id,title,alttitle,released,extlinks{url,label},platforms,notes",
         sort: "released",
         reverse: true,
-        results: 3, // 每类返回20条结果
+        results: 5, // 每类返回20条结果
       },
       {
         headers: {
@@ -82,6 +108,7 @@ async function generateRSS(req, filters, title, description) {
     response.data.results.forEach((item) => {
       let customTitle;
       let linksText = generateLinksText(item.extlinks);
+      let formatNotes = generateFormatNotes(item.notes);
 
       // 根据路由类型匹配语言
       const langText = (() => {
@@ -126,7 +153,7 @@ async function generateRSS(req, filters, title, description) {
         title: customTitle,
         url: `https://vndb.org/${item.id}`,
         date: new Date(item.released),
-        description: `${langText} ${ridLink} ${customTitle} ${platformsText}${linksText}notes`,
+        description: `${langText} ${ridLink} ${customTitle} ${platformsText}${linksText}${formatNotes}`,
       });
     });
 
