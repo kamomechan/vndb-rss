@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VNDB RSS 订阅服务</title>
+    <style>
+      :root {
+        --primary: #6a5acd;
+        --secondary: #9370db;
+        --bg-start: #f5f7fa;
+        --bg-end: #e4e8f0;
+      }
+
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+      }
+
+      body {
+        font-family: "Segoe UI", system-ui, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        /* 修复渐变背景 */
+        background: linear-gradient(
+            135deg,
+            var(--bg-start) 0%,
+            var(--bg-end) 100%
+          )
+          fixed;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+      }
+
+      main {
+        flex: 1;
+        max-width: 800px;
+        width: 100%;
+        margin: 0 auto;
+        padding: 2rem;
+        box-sizing: border-box;
+      }
+
+      header {
+        text-align: center;
+        margin-bottom: 2rem;
+      }
+
+      h1 {
+        color: var(--primary);
+        position: relative;
+        display: inline-block;
+      }
+
+      h1::after {
+        content: "";
+        position: absolute;
+        bottom: -10px;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background: linear-gradient(90deg, var(--primary), var(--secondary));
+      }
+
+      .nav-list {
+        list-style: none;
+        padding: 0;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+      }
+
+      .nav-item a {
+        display: block;
+        padding: 1rem;
+        background: white;
+        border-radius: 8px;
+        text-align: center;
+        text-decoration: none;
+        color: var(--primary);
+        font-weight: 500;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+      }
+
+      .nav-item a:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        background: var(--secondary);
+        color: white;
+      }
+
+      footer {
+        /* background: rgba(255, 255, 255, 0.2); */
+        padding: 1rem;
+        text-align: center;
+        font-size: 0.9em;
+        color: #666;
+        /* 粘性footer关键设置 */
+        margin-top: auto;
+        width: 100%;
+        box-sizing: border-box;
+      }
+
+      @media (max-width: 600px) {
+        main {
+          padding: 1rem;
+        }
+        .nav-list {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <h1>VNDB RSS 订阅服务</h1>
+        <p>
+          本页面由非官方维护，如果对你有所帮助，快来一起成为 VNDB 编辑者吧~~☆
+        </p>
+        <p>
+          页面每5分钟刷新缓存，符合
+          <a href="https://api.vndb.org/kana#usage-terms">VNDB API</a>
+          的速率限制周期
+        </p>
+      </header>
+
+      <ul class="nav-list">
+        <li class="nav-item"><a href="/uo-ch">民间汉化</a></li>
+        <li class="nav-item"><a href="/uo-en">Fan TL</a></li>
+        <li class="nav-item"><a href="/offi-ch">官方中文</a></li>
+        <li class="nav-item"><a href="/offi-en">Official TL</a></li>
+        <li class="nav-item"><a href="/offi-jp">公式日本語</a></li>
+      </ul>
+    </main>
+
+    <footer>
+      <p>
+        <a href="https://t.me/VisualNovelNews" style="color: var(--primary)"
+          >Telegram @VisualNovelNews</a
+        >
+      </p>
+    </footer>
+  </body>
+</html>

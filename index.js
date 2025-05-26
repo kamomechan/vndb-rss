@@ -1,6 +1,8 @@
 import axios from "axios";
 import RSS from "rss";
 import express from "express";
+import { join } from "path";
+import { readFileSync } from "fs";
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -316,17 +318,14 @@ app.get("/offi-jp", async (req, res) => {
 
 // 首页路由 - 显示导航页面
 app.get("/", (req, res) => {
-  res.send(`
-        <h1>VNDB RSS 订阅服务</h1>
-        <p>本页面由非官方维护，如果对你有所帮助，快来一起成为 VNDB 编辑者吧~~☆</p>
-        <ul>
-          <li><a href="/uo-ch">民间汉化</a></li>
-          <li><a href="/uo-en">Fan TL</a></li>
-          <li><a href="/offi-ch">官方中文</a></li>
-          <li><a href="/offi-en">Official TL</a></li>
-          <li><a href="/offi-jp">公式日本語</a></li>
-        </ul>
-      `);
+  try {
+    const htmlPath = join(process.cwd(), "views/home.html");
+    const htmlContent = readFileSync(htmlPath, "utf-8");
+    res.send(htmlContent);
+  } catch (err) {
+    console.error("加载HTML文件失败:", err);
+    res.status(500).send("页面加载错误");
+  }
 });
 
 // 启动服务器
