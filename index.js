@@ -40,7 +40,7 @@ async function generateRSS(req, filters, title, description) {
         fields: "id,title,alttitle,released,extlinks{url,label},platforms",
         sort: "released",
         reverse: true,
-        results: 3, // 每类返回20条结果
+        results: 5, // 每类返回20条结果
       },
       {
         headers: {
@@ -71,8 +71,9 @@ async function generateRSS(req, filters, title, description) {
             return ""; // 默认返回空字符串
         }
       })();
-      // 使用示例
-      console.log(langText); // 根据路由输出对应的标签
+
+      //拼接rid链接
+      let ridLink = `(<a href="https://vndb.org/${item.id}">${item.id}</a>)`;
 
       // 使用map遍历并格式化每个链接，然后用join('</br>')添加换行
       const linksText =
@@ -106,7 +107,7 @@ async function generateRSS(req, filters, title, description) {
         title: customTitle,
         url: `https://vndb.org/${item.id}`,
         date: new Date(item.released),
-        description: `${langText} ${customTitle} ${platformsText}</br></br>${linksText}</br></br>`,
+        description: `${langText} ${ridLink} ${customTitle} ${platformsText}</br></br>${linksText}</br></br>`,
       });
     });
 
