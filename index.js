@@ -1,3 +1,4 @@
+import "dotenv/config";
 import axios from "axios";
 import RSS from "rss";
 import express from "express";
@@ -101,13 +102,13 @@ async function generateRSS(req, filters, title, description) {
           "id,title,alttitle,released,extlinks{url,label},platforms,notes",
         sort: "released",
         reverse: true,
-        results: 5, // 每类返回20条结果
+        results: 20, // 每类返回20条结果
       },
       {
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",
-          Authorization: "Token e59o-brd5z-z8o85-5i7e-n69mc-xccto-oc3e", // 替换为你的真实token
+          Authorization: `Token ${process.env.TOKEN}`, // 替换为你的真实token
         },
       }
     );
