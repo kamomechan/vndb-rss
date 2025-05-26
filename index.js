@@ -53,7 +53,7 @@ function generateFormatNotes(notes) {
   if (notes == null) return ""; // 处理 null/undefined
 
   // VNDB 格式标记转 HTML
-  return notes
+  const formattedNotes = notes
     .replace(/\[b\](.*?)\[\/b\]/g, "<strong>$1</strong>") // 加粗
     .replace(/\[i\](.*?)\[\/i\]/g, "<em>$1</em>") // 斜体
     .replace(/\[u\](.*?)\[\/u\]/g, "<u>$1</u>") // 下划线
@@ -67,6 +67,9 @@ function generateFormatNotes(notes) {
     .replace(/\[code\](.*?)\[\/code\]/g, "<pre><code>$1</code></pre>") // 代码块
     .replace(/\[raw\](.*?)\[\/raw\]/g, "$1") // 原始文本（移除标记）
     .replace(/\n/g, "<br/>"); // 换行符转HTML
+
+  // 最后引用
+  return `<blockquote>${formattedNotes}</blockquote>`;
 }
 
 // 通用 RSS 生成函数
