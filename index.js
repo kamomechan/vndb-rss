@@ -23,13 +23,13 @@ const cache = {
  * 生成格式化链接文本
  * @param {Array} extlinks - 链接数组，格式为[{url: string, label?: string}]
  * @param {string} [defaultLabel="link"] - 默认链接文本
- * @param {string} [separator="</br></br>"] - 链接分隔符
+ * @param {string} [separator="<br><br>"] - 链接分隔符
  * @returns {string} 格式化后的HTML链接文本
  */
 function generateLinksText(
   extlinks = [],
   defaultLabel = "link",
-  separator = "</br></br>"
+  separator = "<br><br>"
 ) {
   // 参数校验
   if (!Array.isArray(extlinks) || extlinks.length === 0) {
@@ -69,7 +69,7 @@ function generateFormatNotes(notes) {
     .replace(/\[quote\](.*?)\[\/quote\]/g, "<blockquote>$1</blockquote>") // 引用
     .replace(/\[code\](.*?)\[\/code\]/g, "<pre><code>$1</code></pre>") // 代码块
     .replace(/\[raw\](.*?)\[\/raw\]/g, "$1") // 原始文本（移除标记）
-    .replace(/\n/g, "<br/>"); // 换行符转HTML
+    .replace(/\n/g, "<br>"); // 换行符转HTML
 
   // 最后引用
   return `<blockquote>${formattedNotes}</blockquote>`;
@@ -142,7 +142,7 @@ async function generateRSS(req, filters, title, description) {
       // 遍历支持平台
       const platformsText =
         (item.platforms?.map((platform) => `[${platform}]`).join(" ") || "") +
-        "</br></br>";
+        "<br><br>";
 
       // 判断路由是否为中文/日文路由
       if (
