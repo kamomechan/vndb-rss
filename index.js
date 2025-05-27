@@ -6,11 +6,11 @@ import { join } from "path";
 import { readFileSync } from "fs";
 
 const app = express();
-const port = process.env.PORT || 3000;
-const host = "127.0.0.1";
+const port = Number(process.env.PORT);
+const host = process.env.HOST;
 
 // 缓存配置
-const CACHE_TTL = 5 * 60 * 1000; // 5分钟缓存时间
+const CACHE_TTL = Number(process.env.CACHE_TIME);
 const cache = {
   "/uo-ch": { data: null, expiresAt: 0 },
   "/uo-en": { data: null, expiresAt: 0 },
@@ -135,7 +135,7 @@ async function generateRSS(req, filters, title, description) {
           "id,title,alttitle,released,extlinks{url,label},platforms,notes",
         sort: "released",
         reverse: true,
-        results: 20, // 每类返回20条结果
+        results: Number(process.env.FEED_NUMBER), // 路由返回的条目
       },
       {
         headers: {
