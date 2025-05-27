@@ -14,6 +14,10 @@
     {
       "src": "/(.*)",
       "dest": "index.js"
+    },
+    {
+      "src": "/favicon.ico",
+      "dest": "/404"
     }
   ]
 }
