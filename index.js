@@ -75,6 +75,39 @@ function generateFormatNotes(notes) {
   return `<blockquote>${formattedNotes}</blockquote>`;
 }
 
+// OPML 生成函数
+function generateOPML() {
+  const feeds = [
+    { title: "民间汉化", xmlUrl: `http://${host}/uo-ch` },
+    { title: "Fan TL", xmlUrl: `http://${host}/uo-en` },
+    { title: "官方中文", xmlUrl: `http://${host}/offi-ch` },
+    { title: "Official TL", xmlUrl: `http://${host}/offi-en` },
+    { title: "公式日本語", xmlUrl: `http://${host}/offi-jp` },
+  ];
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+  <opml version="2.0">
+    <head>
+      <title>VNDB RSS 订阅合集</title>
+      <dateCreated>${new Date().toUTCString()}</dateCreated>
+    </head>
+    <body>
+      ${feeds
+        .map(
+          (feed) => `
+      <outline
+        type="rss"
+        text="${feed.title}"
+        title="${feed.title}"
+        xmlUrl="${feed.xmlUrl}"
+        htmlUrl="${host}"/>
+      `
+        )
+        .join("")}
+    </body>
+  </opml>`;
+}
+
 // 通用 RSS 生成函数
 async function generateRSS(req, filters, title, description) {
   const currentPath = req.path;
@@ -317,6 +350,13 @@ app.get("/offi-jp", async (req, res) => {
   }
 });
 
+// 新增 OPML 导出路由
+app.get("/export-opml", (req, res) => {
+  const opmlContent = generateOPML();
+  res.type("application/xml");
+  res.send(opmlContent);
+});
+
 // 首页路由 - 显示导航页面
 app.get("/", (req, res) => {
   try {
@@ -339,4 +379,5 @@ app.listen(port, host, () => {
   console.log(`- 官方中文: http://${host}:${port}/offi-ch`);
   console.log(`- Official TL: http://${host}:${port}/offi-en`);
   console.log(`- 公式日本語: http://${host}:${port}/offi-jp`);
+  console.log(`- 导出OPML: http://${host}:${port}/export-opml`);
 });
