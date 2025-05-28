@@ -104,15 +104,18 @@ const generateImageTags = (images) => {
         if (
           typeof image.sexual !== "number" ||
           typeof image.violence !== "number" ||
+          typeof image.votecount !== "number" ||
           image.sexual !== 0 ||
-          image.violence !== 0
+          image.violence !== 0 ||
+          image.votecount < 3
         ) {
           console.log(
             "忽略非安全图片，sexual:",
             image.sexual,
-            image.url,
             "violence:",
             image.violence,
+            "votecount:",
+            image.votecount,
             image.url
           );
           return false;
@@ -197,7 +200,7 @@ async function generateRSS(req, filters, title, description) {
         filters: filters,
         // 请求字段
         fields:
-          "id,title,alttitle,released,extlinks{url,label},platforms,notes,images{url,sexual,violence}",
+          "id,title,alttitle,released,extlinks{url,label},platforms,notes,images{url,sexual,violence,votecount}",
         sort: "released",
         reverse: true,
         results: Number(process.env.FEED_NUMBER), // 路由返回的条目
