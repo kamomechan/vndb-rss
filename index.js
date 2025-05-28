@@ -75,6 +75,71 @@ function generateFormatNotes(notes) {
   return `<blockquote>${formattedNotes}</blockquote>`;
 }
 
+/**
+ * 获取安全图片的HTML标签
+ * @param {Array} images - 图像数组
+ * @returns {string} 格式化后的HTML图片标签或多个标签
+ */
+const generateImageTags = (images) => {
+  // 1. 基础空值检查
+  if (!Array.isArray(images)) {
+    console.debug("images不是数组");
+    return "";
+  }
+
+  // 2. 过滤并映射有效图片
+  const validImages = images
+    .filter((image) => {
+      // 2.1 检查image对象有效性
+      if (!image || typeof image !== "object") {
+        return false;
+      }
+
+      // 2.2 验证sexual和violence投票值
+      // sexual和violence值说明：
+      // 0 = 安全
+      // 1 = 可疑
+      // 2 = 明确成人/暴力内容
+      if (process.env.SAFETY_MODE !== "NSFW") {
+        if (
+          typeof image.sexual !== "number" ||
+          typeof image.violence !== "number" ||
+          image.sexual !== 0 ||
+          image.violence !== 0
+        ) {
+          console.log(
+            "忽略非安全图片，sexual:",
+            image.sexual,
+            image.url,
+            "violence:",
+            image.violence,
+            image.url
+          );
+          return false;
+        }
+      }
+
+      // 2.3 验证URL有效性
+      if (
+        !image.url ||
+        !/^https?:\/\/.+\.(jpg|jpeg|png|gif|webp)$/i.test(image.url.trim())
+      ) {
+        console.debug("忽略无效URL:", image.url);
+        return false;
+      }
+
+      return true;
+    })
+    .map((image) => {
+      // 3. 生成HTML标签
+      const url = image.url.trim();
+      return `<img src="${url}" alt="Visual Novel Image" class="vndb-image">`;
+    });
+
+  // 4. 返回结果
+  return validImages.join("<br>"); // 用换行符分隔多个图片
+};
+
 // OPML 生成函数
 function generateOPML() {
   const feeds = [
@@ -132,7 +197,7 @@ async function generateRSS(req, filters, title, description) {
         filters: filters,
         // 请求字段
         fields:
-          "id,title,alttitle,released,extlinks{url,label},platforms,notes",
+          "id,title,alttitle,released,extlinks{url,label},platforms,notes,images{url,sexual,violence}",
         sort: "released",
         reverse: true,
         results: Number(process.env.FEED_NUMBER), // 路由返回的条目
@@ -189,12 +254,14 @@ async function generateRSS(req, filters, title, description) {
         // 非中文路由使用title
         customTitle = `${item.title}`;
       }
+      //设置图片url
+      const imgURL = generateImageTags(item.images);
 
       feed.item({
         title: customTitle,
         url: `https://vndb.org/${item.id}`,
         date: new Date(item.released),
-        description: `${langText} ${ridLink} ${customTitle} ${platformsText}${linksText}${formatNotes}`,
+        description: `${langText} ${ridLink} ${customTitle} ${platformsText}${linksText}${formatNotes}${imgURL}`,
       });
     });
 
