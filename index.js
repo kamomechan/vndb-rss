@@ -12,12 +12,47 @@ const host = process.env.HOST;
 // 缓存配置
 const CACHE_TTL = Number(process.env.CACHE_TIME);
 const cache = {
-  "/uo-ch": { data: null, expiresAt: 0 },
-  "/uo-en": { data: null, expiresAt: 0 },
-  "/offi-ch": { data: null, expiresAt: 0 },
-  "/offi-en": { data: null, expiresAt: 0 },
+  "/official": { data: null, expiresAt: 0 },
+  "/unofficial": { data: null, expiresAt: 0 },
   "/offi-jp": { data: null, expiresAt: 0 },
 };
+
+/**
+ * 根据路由和语言信息获取对应的标签文本
+ * @param {string} path - 请求路径 (如 "/official", "/unofficial", "/offi-jp")
+ * @param {Array} languages - 语言数组，包含对象 { lang: string }
+ * @returns {string} 对应的标签文本
+ */
+function generateLanguageLabel(path, languages) {
+  // 提取所有存在的语言代码
+  const langCodes = languages.map((langObj) => langObj.lang);
+  const hasEn = langCodes.includes("en");
+  const hasZh = langCodes.includes("zh-Hans") || langCodes.includes("zh-Hant");
+  const hasJp = langCodes.includes("ja");
+
+  // 特殊处理日语路由
+  if (path === "/offi-jp") {
+    return "[公式日本語]";
+  }
+
+  // 官方版本路由
+  if (path === "/official") {
+    if (hasEn && hasZh) return "[Official TL/官方中文]";
+    if (hasEn) return "[Official TL]";
+    if (hasZh) return "[官方中文]";
+    return ""; // 如果没有匹配语言
+  }
+
+  // 非官方版本路由
+  if (path === "/unofficial") {
+    if (hasEn && hasZh) return "[Fan TL/民间汉化]";
+    if (hasEn) return "[Fan TL]";
+    if (hasZh) return "[民间汉化]";
+    return ""; // 如果没有匹配语言
+  }
+
+  return legacyMap[path] || "";
+}
 
 /**
  * 生成格式化链接文本
@@ -78,10 +113,8 @@ function generateFormatNotes(notes) {
 // OPML 生成函数
 function generateOPML() {
   const feeds = [
-    { title: "民间汉化", xmlUrl: `https://${host}/uo-ch` },
-    { title: "Fan TL", xmlUrl: `https://${host}/uo-en` },
-    { title: "官方中文", xmlUrl: `https://${host}/offi-ch` },
-    { title: "Official TL", xmlUrl: `https://${host}/offi-en` },
+    { title: "民间汉化/Fan TL", xmlUrl: `https://${host}/unofficial` },
+    { title: "官方中文/Official TL", xmlUrl: `https://${host}/official` },
     { title: "公式日本語", xmlUrl: `https://${host}/offi-jp` },
   ];
 
@@ -132,7 +165,7 @@ async function generateRSS(req, filters, title, description) {
         filters: filters,
         // 请求字段
         fields:
-          "id,title,alttitle,released,extlinks{url,label},platforms,notes",
+          "id,title,alttitle,released,extlinks{url,label},platforms,notes,languages{lang}",
         sort: "released",
         reverse: true,
         results: Number(process.env.FEED_NUMBER), // 路由返回的条目
@@ -147,27 +180,25 @@ async function generateRSS(req, filters, title, description) {
     );
 
     response.data.results.forEach((item) => {
-      let customTitle;
       let linksText = generateLinksText(item.extlinks);
       let formatNotes = generateFormatNotes(item.notes);
 
       // 根据路由类型匹配语言
-      const langText = (() => {
-        switch (req.path) {
-          case "/uo-ch":
-            return "[民间汉化]";
-          case "/uo-en":
-            return "[Fan TL]";
-          case "/offi-ch":
-            return "[官方中文]";
-          case "/offi-en":
-            return "[Official TL]";
-          case "/offi-jp":
-            return "[公式日本語]";
-          default:
-            return ""; // 默认返回空字符串
-        }
-      })();
+      const langText = generateLanguageLabel(req.path, item.languages);
+
+      // 判断是否需要优先使用 alttitle
+      const shouldUseAltTitle =
+        // 包含"官方中文"但不包含"/"（即不包含"官方中文/Official TL"）
+        (langText.includes("官方中文") && !langText.includes("/")) ||
+        // 包含"民间汉化"但不包含"/"（即不包含"民间汉化/Fan TL"）
+        (langText.includes("民间汉化") && !langText.includes("/")) ||
+        // 包含"公式日本語"
+        langText.includes("公式日本語");
+
+      // 设置标题
+      const customTitle = shouldUseAltTitle
+        ? `${item.alttitle || item.title}` // 优先使用 alttitle（如果不存在则回退到 title）
+        : `${item.title}`; // 直接使用 title
 
       //拼接rid链接
       let ridLink = `(<a href="https://vndb.org/${item.id}">${item.id}</a>)`;
@@ -176,19 +207,6 @@ async function generateRSS(req, filters, title, description) {
       const platformsText =
         (item.platforms?.map((platform) => `[${platform}]`).join(" ") || "") +
         "<br><br>";
-
-      // 判断路由是否为中文/日文路由
-      if (
-        req.path === "/uo-ch" ||
-        req.path === "/offi-ch" ||
-        req.path === "/offi-jp"
-      ) {
-        // 设置标题优先级高的为alttitle，这是由于title默认是罗马音或英语，alttitle一般为译名
-        customTitle = `${item.alttitle || item.title}`;
-      } else {
-        // 非中文路由使用title
-        customTitle = `${item.title}`;
-      }
 
       feed.item({
         title: customTitle,
@@ -220,12 +238,17 @@ async function generateRSS(req, filters, title, description) {
   }
 }
 
-// 民间汉化作品
-app.get("/uo-ch", async (req, res) => {
+// 民间汉化/Fan TL
+app.get("/unofficial", async (req, res) => {
   try {
     const filters = [
       "and",
-      ["or", ["lang", "=", "zh-Hans"], ["lang", "=", "zh-Hant"]],
+      [
+        "or",
+        ["lang", "=", "zh-Hans"],
+        ["lang", "=", "zh-Hant"],
+        ["lang", "=", "en"],
+      ],
       ["freeware", "=", 1],
       ["official", "!=", 1], // 非官方
       ["released", "<=", "today"],
@@ -235,8 +258,8 @@ app.get("/uo-ch", async (req, res) => {
     const rssXml = await generateRSS(
       req,
       filters,
-      "民间汉化",
-      "免费且非官方的中文视觉小说"
+      "民间汉化/Fan TL",
+      "免费且非官方的中文视觉小说/Unofficial English translated free visual novels"
     );
 
     res.type("application/xml");
@@ -246,38 +269,17 @@ app.get("/uo-ch", async (req, res) => {
   }
 });
 
-// fan-translated‌
-app.get("/uo-en", async (req, res) => {
+// 官方中文/Official TL
+app.get("/official", async (req, res) => {
   try {
     const filters = [
       "and",
-      ["lang", "=", "en"],
-      ["freeware", "=", 1],
-      ["official", "!=", 1], // 非官方
-      ["released", "<=", "today"],
-      ["medium", "=", "in"], //筛选internet download版
-    ];
-
-    const rssXml = await generateRSS(
-      req,
-      filters,
-      "Fan TL",
-      "Unofficial English translated free visual novels"
-    );
-
-    res.type("application/xml");
-    res.send(rssXml);
-  } catch (error) {
-    res.status(500).send("生成 RSS 时出错");
-  }
-});
-
-// 官方中文作品
-app.get("/offi-ch", async (req, res) => {
-  try {
-    const filters = [
-      "and",
-      ["or", ["lang", "=", "zh-Hans"], ["lang", "=", "zh-Hant"]],
+      [
+        "or",
+        ["lang", "=", "zh-Hans"],
+        ["lang", "=", "zh-Hant"],
+        ["lang", "=", "en"],
+      ],
       ["official", "=", 1], // 官方
       ["released", "<=", "today"],
       ["medium", "=", "in"], //筛选internet download版
@@ -286,33 +288,8 @@ app.get("/offi-ch", async (req, res) => {
     const rssXml = await generateRSS(
       req,
       filters,
-      "官方中文",
-      "有官中的视觉小说（含付费作品）"
-    );
-
-    res.type("application/xml");
-    res.send(rssXml);
-  } catch (error) {
-    res.status(500).send("生成 RSS 时出错");
-  }
-});
-
-// Official TL
-app.get("/offi-en", async (req, res) => {
-  try {
-    const filters = [
-      "and",
-      ["lang", "=", "en"],
-      ["official", "=", 1], // 官方
-      ["released", "<=", "today"],
-      ["medium", "=", "in"], //筛选internet download版
-    ];
-
-    const rssXml = await generateRSS(
-      req,
-      filters,
-      "Official TL",
-      "Official English visual novels (including commercial)"
+      "官方中文/Official TL",
+      "有官中的视觉小说(含付费作品)/Official English visual novels (including commercial)"
     );
 
     res.type("application/xml");
@@ -374,10 +351,8 @@ app.listen(port, host, () => {
   console.log(`服务器运行在 http://${host}:${port}`);
   console.log("可用路由:");
   console.log(`- 首页: http://${host}:${port}/`);
-  console.log(`- 民间汉化: http://${host}:${port}/uo-ch`);
-  console.log(`- Fan TL: http://${host}:${port}/uo-en`);
-  console.log(`- 官方中文: http://${host}:${port}/offi-ch`);
-  console.log(`- Official TL: http://${host}:${port}/offi-en`);
+  console.log(`- 民间汉化/Fan TL: http://${host}:${port}/unofficial`);
+  console.log(`- 官方中文/Official TL: http://${host}:${port}/official`);
   console.log(`- 公式日本語: http://${host}:${port}/offi-jp`);
   console.log(`- 导出OPML: http://${host}:${port}/export-opml`);
 });
