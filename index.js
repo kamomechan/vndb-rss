@@ -251,10 +251,10 @@ async function generateRSS(req, filters, title, description) {
         req.path === "/offi-ch" ||
         req.path === "/offi-jp"
       ) {
-        // 设置标题优先级高的为alttitle，这是由于title默认是罗马音或英语，alttitle一般为译名
+        // 设置标题优先级高的为alttitle，这是由于title默认是罗马音或英语，alttitle一般为译名或原名
         customTitle = `${item.alttitle || item.title}`;
       } else {
-        // 非中文路由使用title
+        // 非中文/日文路由使用title
         customTitle = `${item.title}`;
       }
       //设置图片url
