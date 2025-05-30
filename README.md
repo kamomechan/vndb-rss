@@ -20,10 +20,6 @@ RSS 阅读器分别是开源的 [fluent-reader](https://github.com/yang991178/fl
 
 ![](./screenshots/6.jpg)
 
-![](./screenshots/7.jpg)
-
-![](./screenshots/8.jpg)
-
 ## 特性
 
 - 自定义缓存刷新时间
