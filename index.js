@@ -254,7 +254,7 @@ async function generateRSS(req, filters, title, description) {
       // 根据路由类型匹配语言
       const langText = generateLanguageLabel(req.path, item.languages);
 
-      // 判断是否需要优先使用 alttitle
+      // 判断路由是否为中文或日文路由，若是则设置标题优先级高的为alttitle，这是由于title默认是罗马音或英语，alttitle一般为译名或原名
       const shouldUseAltTitle =
         // 包含"官方中文"但不包含"/"（即不包含"官方中文/Official TL"）
         (langText.includes("官方中文") && !langText.includes("/")) ||
