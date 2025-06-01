@@ -178,6 +178,22 @@ const generateImageTags = (images) => {
   return validImages.join("<br>"); // 用换行符分隔多个图片
 };
 
+// 过滤自定义标签
+function generateTagFilters(
+  envTagValue = process.env.RECLUDE_TAG,
+  operator = "!=",
+  filterKey = "dtag"
+) {
+  // 处理未定义或空值，按逗号分隔后过滤无效项
+  const tags = (envTagValue || "")
+    .split(",")
+    .map((tag) => tag.trim())
+    .filter((tag) => tag); // 移除空字符串
+
+  // 返回实际的数组结构，而不是字符串
+  return tags.map((tag) => [filterKey, operator, tag]);
+}
+
 // OPML 生成函数
 function generateOPML() {
   const feeds = [
@@ -324,6 +340,7 @@ app.get("/unofficial", async (req, res) => {
       ["official", "!=", 1], // 非官方
       ["released", "<=", "today"],
       ["medium", "=", "in"], //筛选internet download版
+      ["vn", "=", ["and", ...generateTagFilters()]], // 展开二维数组
     ];
 
     const rssXml = await generateRSS(
@@ -354,6 +371,7 @@ app.get("/official", async (req, res) => {
       ["official", "=", 1], // 官方
       ["released", "<=", "today"],
       ["medium", "=", "in"], //筛选internet download版
+      ["vn", "=", ["and", ...generateTagFilters()]], // 展开二维数组
     ];
 
     const rssXml = await generateRSS(
@@ -382,6 +400,7 @@ app.get("/offi-jp", async (req, res) => {
       ["official", "=", 1], // 官方
       ["released", "<=", "today"],
       ["medium", "=", "in"], //筛选 internet download版
+      ["vn", "=", ["and", ...generateTagFilters()]], // 展开二维数组
     ];
 
     const rssXml = await generateRSS(
