@@ -199,6 +199,27 @@ function generateTagFilters(
   ];
 }
 
+// 过滤自定义版本
+function generateVersionFilters(
+  envVersionValue = process.env.RECLUDE_VERSION,
+  operator = "!=",
+  filterKey = "rtype"
+) {
+  // 处理未定义或空值，按逗号分隔后过滤无效项
+  const versions = (envVersionValue || "")
+    .split(",")
+    .map((version) => version.trim())
+    .filter((version) => version); // 过滤掉空字符串
+
+  // 如果没有有效值，返回空数组
+  if (versions.length === 0) return [];
+
+  // 否则返回完整条件
+  return [
+    ["and", ...versions.map((version) => [filterKey, operator, version])],
+  ];
+}
+
 // OPML 生成函数
 function generateOPML() {
   const feeds = [
@@ -377,6 +398,7 @@ app.get("/official", async (req, res) => {
       ["released", "<=", "today"],
       ["medium", "=", "in"], //筛选internet download版
       ...generateTagFilters(), // 展开二维数组,过滤自定义标签
+      ...generateVersionFilters(), //过滤自定义版本
     ];
 
     const rssXml = await generateRSS(
@@ -406,6 +428,7 @@ app.get("/offi-jp", async (req, res) => {
       ["released", "<=", "today"],
       ["medium", "=", "in"], //筛选 internet download版
       ...generateTagFilters(), // 展开二维数组,过滤自定义标签
+      ...generateVersionFilters(), //过滤自定义版本
     ];
 
     const rssXml = await generateRSS(
