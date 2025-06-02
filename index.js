@@ -190,8 +190,13 @@ function generateTagFilters(
     .map((tag) => tag.trim())
     .filter((tag) => tag); // 移除空字符串
 
-  // 返回实际的数组结构，而不是字符串
-  return tags.map((tag) => [filterKey, operator, tag]);
+  // 如果没有标签，返回空数组（不影响 filters 结构）
+  if (tags.length === 0) return [];
+
+  // 否则返回完整条件 [["vn", "=", ["and", ...]]]
+  return [
+    ["vn", "=", ["and", ...tags.map((tag) => [filterKey, operator, tag])]],
+  ];
 }
 
 // OPML 生成函数
@@ -340,7 +345,7 @@ app.get("/unofficial", async (req, res) => {
       ["official", "!=", 1], // 非官方
       ["released", "<=", "today"],
       ["medium", "=", "in"], //筛选internet download版
-      ["vn", "=", ["and", ...generateTagFilters()]], // 展开二维数组
+      ...generateTagFilters(), // 展开二维数组,过滤自定义标签
     ];
 
     const rssXml = await generateRSS(
@@ -371,7 +376,7 @@ app.get("/official", async (req, res) => {
       ["official", "=", 1], // 官方
       ["released", "<=", "today"],
       ["medium", "=", "in"], //筛选internet download版
-      ["vn", "=", ["and", ...generateTagFilters()]], // 展开二维数组
+      ...generateTagFilters(), // 展开二维数组,过滤自定义标签
     ];
 
     const rssXml = await generateRSS(
@@ -400,7 +405,7 @@ app.get("/offi-jp", async (req, res) => {
       ["official", "=", 1], // 官方
       ["released", "<=", "today"],
       ["medium", "=", "in"], //筛选 internet download版
-      ["vn", "=", ["and", ...generateTagFilters()]], // 展开二维数组
+      ...generateTagFilters(), // 展开二维数组,过滤自定义标签
     ];
 
     const rssXml = await generateRSS(
