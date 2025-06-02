@@ -122,8 +122,34 @@ function generateTagFilters(
     .map((tag) => tag.trim())
     .filter((tag) => tag); // 移除空字符串
 
-  // 返回实际的数组结构，而不是字符串
-  return tags.map((tag) => [filterKey, operator, tag]);
+  // 如果没有标签，返回空数组（不影响 filters 结构）
+  if (tags.length === 0) return [];
+
+  // 否则返回完整条件 [["vn", "=", ["and", ...]]]
+  return [
+    ["vn", "=", ["and", ...tags.map((tag) => [filterKey, operator, tag])]],
+  ];
+}
+
+// 过滤自定义版本
+function generateVersionFilters(
+  envVersionValue = process.env.RECLUDE_VERSION,
+  operator = "!=",
+  filterKey = "rtype"
+) {
+  // 处理未定义或空值，按逗号分隔后过滤无效项
+  const versions = (envVersionValue || "")
+    .split(",")
+    .map((version) => version.trim())
+    .filter((version) => version); // 过滤掉空字符串
+
+  // 如果没有有效值，返回空数组
+  if (versions.length === 0) return [];
+
+  // 否则返回完整条件
+  return [
+    ["and", ...versions.map((version) => [filterKey, operator, version])],
+  ];
 }
 
 // OPML 生成函数
@@ -269,7 +295,7 @@ app.get("/unofficial", async (req, res) => {
       ["official", "!=", 1], // 非官方
       ["released", "<=", "today"],
       ["medium", "=", "in"], //筛选internet download版
-      ["vn", "=", ["and", ...generateTagFilters()]], // 展开二维数组
+      ...generateTagFilters(), // 展开二维数组,过滤自定义标签
     ];
 
     const rssXml = await generateRSS(
@@ -300,7 +326,8 @@ app.get("/official", async (req, res) => {
       ["official", "=", 1], // 官方
       ["released", "<=", "today"],
       ["medium", "=", "in"], //筛选internet download版
-      ["vn", "=", ["and", ...generateTagFilters()]], // 展开二维数组
+      ...generateTagFilters(), // 展开二维数组,过滤自定义标签
+      ...generateVersionFilters(), //过滤自定义版本
     ];
 
     const rssXml = await generateRSS(
@@ -329,7 +356,8 @@ app.get("/offi-jp", async (req, res) => {
       ["official", "=", 1], // 官方
       ["released", "<=", "today"],
       ["medium", "=", "in"], //筛选 internet download版
-      ["vn", "=", ["and", ...generateTagFilters()]], // 展开二维数组
+      ...generateTagFilters(), // 展开二维数组,过滤自定义标签
+      ...generateVersionFilters(), //过滤自定义版本
     ];
 
     const rssXml = await generateRSS(
