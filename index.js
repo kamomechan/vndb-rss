@@ -266,7 +266,6 @@ app.get("/uo-ch", async (req, res) => {
       ["freeware", "=", 1],
       ["official", "!=", 1], // 非官方
       ["released", "<=", "today"],
-      ["medium", "=", "in"], //筛选internet download版
       ...generateCustomFilters(
         process.env.RECLUDE_TAG,
         "!=",
@@ -313,7 +312,6 @@ app.get("/uo-en", async (req, res) => {
       ["freeware", "=", 1],
       ["official", "!=", 1], // 非官方
       ["released", "<=", "today"],
-      ["medium", "=", "in"], //筛选internet download版
       ...generateCustomFilters(
         process.env.RECLUDE_TAG,
         "!=",
@@ -359,7 +357,6 @@ app.get("/offi-ch", async (req, res) => {
       ["or", ["lang", "=", "zh-Hans"], ["lang", "=", "zh-Hant"]],
       ["official", "=", 1], // 官方
       ["released", "<=", "today"],
-      ["medium", "=", "in"], //筛选internet download版
       ...generateCustomFilters(
         process.env.RECLUDE_TAG,
         "!=",
@@ -412,7 +409,6 @@ app.get("/offi-en", async (req, res) => {
       ["lang", "=", "en"],
       ["official", "=", 1], // 官方
       ["released", "<=", "today"],
-      ["medium", "=", "in"], //筛选internet download版
       ...generateCustomFilters(
         process.env.RECLUDE_TAG,
         "!=",
@@ -468,7 +464,6 @@ app.get("/offi-jp", async (req, res) => {
       ["vn", "=", ["olang", "=", "ja"]],
       ["official", "=", 1], // 官方
       ["released", "<=", "today"],
-      ["medium", "=", "in"], //筛选 internet download版
       ...generateCustomFilters(
         process.env.RECLUDE_TAG,
         "!=",
