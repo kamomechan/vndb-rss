@@ -281,6 +281,13 @@ app.get("/uo-ch", async (req, res) => {
         false,
         "or"
       ), //自定义包含平台
+      ...generateCustomFilters(
+        process.env.INCLUDE_MEDIA,
+        "=",
+        "medium",
+        false,
+        "or"
+      ), //自定义包含媒介
     ];
 
     const rssXml = await generateRSS(
@@ -321,6 +328,13 @@ app.get("/uo-en", async (req, res) => {
         false,
         "or"
       ), //自定义包含平台
+      ...generateCustomFilters(
+        process.env.INCLUDE_MEDIA,
+        "=",
+        "medium",
+        false,
+        "or"
+      ), //自定义包含媒介
     ];
 
     const rssXml = await generateRSS(
@@ -367,6 +381,13 @@ app.get("/offi-ch", async (req, res) => {
         false,
         "or"
       ), //自定义包含平台
+      ...generateCustomFilters(
+        process.env.INCLUDE_MEDIA,
+        "=",
+        "medium",
+        false,
+        "or"
+      ), //自定义包含媒介
     ];
 
     const rssXml = await generateRSS(
@@ -413,6 +434,13 @@ app.get("/offi-en", async (req, res) => {
         false,
         "or"
       ), //自定义包含平台
+      ...generateCustomFilters(
+        process.env.INCLUDE_MEDIA,
+        "=",
+        "medium",
+        false,
+        "or"
+      ), //自定义包含媒介
     ];
 
     const rssXml = await generateRSS(
@@ -462,6 +490,13 @@ app.get("/offi-jp", async (req, res) => {
         false,
         "or"
       ), //自定义包含平台
+      ...generateCustomFilters(
+        process.env.INCLUDE_MEDIA,
+        "=",
+        "medium",
+        false,
+        "or"
+      ), //自定义包含媒介
     ];
 
     const rssXml = await generateRSS(
