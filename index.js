@@ -297,7 +297,7 @@ app.get("/unofficial", async (req, res) => {
         "or"
       ), //自定义包含媒介
       ...generateCustomFilters(
-        process.env.RECLUDE_TAG,
+        process.env.EXCLUDE_TAG,
         "!=",
         "dtag",
         true,
@@ -347,14 +347,14 @@ app.get("/official", async (req, res) => {
         "or"
       ), //自定义包含媒介
       ...generateCustomFilters(
-        process.env.RECLUDE_TAG,
+        process.env.EXCLUDE_TAG,
         "!=",
         "dtag",
         true,
         "and"
       ), // 自定义标签排除
       ...generateCustomFilters(
-        process.env.RECLUDE_VERSION,
+        process.env.EXCLUDE_VERSION,
         "!=",
         "rtype",
         false,
@@ -402,14 +402,14 @@ app.get("/offi-jp", async (req, res) => {
         "or"
       ), //自定义包含媒介
       ...generateCustomFilters(
-        process.env.RECLUDE_TAG,
+        process.env.EXCLUDE_TAG,
         "!=",
         "dtag",
         true,
         "and"
       ), // 自定义标签排除
       ...generateCustomFilters(
-        process.env.RECLUDE_VERSION,
+        process.env.EXCLUDE_VERSION,
         "!=",
         "rtype",
         false,
