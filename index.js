@@ -179,7 +179,13 @@ const generateImageTags = (images) => {
 };
 
 // 过滤自定义条件
-function generateCustomFilters(envValue, operator, filterKey, needsVN) {
+function generateCustomFilters(
+  envValue,
+  operator,
+  filterKey,
+  needsVN,
+  logicalOperator
+) {
   // 处理未定义或空值，按逗号分隔后过滤无效项
   const values = (envValue || "")
     .split(",")
@@ -195,10 +201,18 @@ function generateCustomFilters(envValue, operator, filterKey, needsVN) {
         [
           "vn",
           "=",
-          ["and", ...values.map((value) => [filterKey, operator, value])],
+          [
+            logicalOperator,
+            ...values.map((value) => [filterKey, operator, value]),
+          ],
         ],
       ]
-    : [["and", ...values.map((value) => [filterKey, operator, value])]];
+    : [
+        [
+          logicalOperator,
+          ...values.map((value) => [filterKey, operator, value]),
+        ],
+      ];
 }
 
 // OPML 生成函数
@@ -347,7 +361,20 @@ app.get("/unofficial", async (req, res) => {
       ["official", "!=", 1], // 非官方
       ["released", "<=", "today"],
       ["medium", "=", "in"], //筛选internet download版
-      ...generateCustomFilters(process.env.RECLUDE_TAG, "!=", "dtag", true), // 自定义标签排除
+      ...generateCustomFilters(
+        process.env.RECLUDE_TAG,
+        "!=",
+        "dtag",
+        true,
+        "and"
+      ), // 自定义标签排除
+      ...generateCustomFilters(
+        process.env.INCLUDE_PLATFORM,
+        "=",
+        "platform",
+        false,
+        "or"
+      ), //自定义包含平台
     ];
 
     const rssXml = await generateRSS(
@@ -378,13 +405,27 @@ app.get("/official", async (req, res) => {
       ["official", "=", 1], // 官方
       ["released", "<=", "today"],
       ["medium", "=", "in"], //筛选internet download版
-      ...generateCustomFilters(process.env.RECLUDE_TAG, "!=", "dtag", true), // 自定义标签排除
+      ...generateCustomFilters(
+        process.env.RECLUDE_TAG,
+        "!=",
+        "dtag",
+        true,
+        "and"
+      ), // 自定义标签排除
       ...generateCustomFilters(
         process.env.RECLUDE_VERSION,
         "!=",
         "rtype",
-        false
+        false,
+        "and"
       ), // 自定义版本排除
+      ...generateCustomFilters(
+        process.env.INCLUDE_PLATFORM,
+        "=",
+        "platform",
+        false,
+        "or"
+      ), //自定义包含平台
     ];
 
     const rssXml = await generateRSS(
@@ -413,13 +454,27 @@ app.get("/offi-jp", async (req, res) => {
       ["official", "=", 1], // 官方
       ["released", "<=", "today"],
       ["medium", "=", "in"], //筛选 internet download版
-      ...generateCustomFilters(process.env.RECLUDE_TAG, "!=", "dtag", true), // 自定义标签排除
+      ...generateCustomFilters(
+        process.env.RECLUDE_TAG,
+        "!=",
+        "dtag",
+        true,
+        "and"
+      ), // 自定义标签排除
       ...generateCustomFilters(
         process.env.RECLUDE_VERSION,
         "!=",
         "rtype",
-        false
+        false,
+        "and"
       ), // 自定义版本排除
+      ...generateCustomFilters(
+        process.env.INCLUDE_PLATFORM,
+        "=",
+        "platform",
+        false,
+        "or"
+      ), //自定义包含平台
     ];
 
     const rssXml = await generateRSS(
