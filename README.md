@@ -28,6 +28,8 @@ RSS 阅读器分别是开源的 [fluent-reader](https://github.com/yang991178/fl
 
 - 自定义标签和版本排除
 
+- 自定义平台和媒介筛选
+
 - 非英文版本自动将罗马音标题转换为原名或译名
 
 - bbcode 标记语言自动格式化为 html
