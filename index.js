@@ -267,7 +267,7 @@ app.get("/uo-ch", async (req, res) => {
       ["official", "!=", 1], // 非官方
       ["released", "<=", "today"],
       ...generateCustomFilters(
-        process.env.RECLUDE_TAG,
+        process.env.EXCLUDE_TAG,
         "!=",
         "dtag",
         true,
@@ -313,7 +313,7 @@ app.get("/uo-en", async (req, res) => {
       ["official", "!=", 1], // 非官方
       ["released", "<=", "today"],
       ...generateCustomFilters(
-        process.env.RECLUDE_TAG,
+        process.env.EXCLUDE_TAG,
         "!=",
         "dtag",
         true,
@@ -358,14 +358,14 @@ app.get("/offi-ch", async (req, res) => {
       ["official", "=", 1], // 官方
       ["released", "<=", "today"],
       ...generateCustomFilters(
-        process.env.RECLUDE_TAG,
+        process.env.EXCLUDE_TAG,
         "!=",
         "dtag",
         true,
         "and"
       ), // 自定义标签排除
       ...generateCustomFilters(
-        process.env.RECLUDE_VERSION,
+        process.env.EXCLUDE_VERSION,
         "!=",
         "rtype",
         false,
@@ -410,14 +410,14 @@ app.get("/offi-en", async (req, res) => {
       ["official", "=", 1], // 官方
       ["released", "<=", "today"],
       ...generateCustomFilters(
-        process.env.RECLUDE_TAG,
+        process.env.EXCLUDE_TAG,
         "!=",
         "dtag",
         true,
         "and"
       ), // 自定义标签排除
       ...generateCustomFilters(
-        process.env.RECLUDE_VERSION,
+        process.env.EXCLUDE_VERSION,
         "!=",
         "rtype",
         false,
@@ -465,14 +465,14 @@ app.get("/offi-jp", async (req, res) => {
       ["official", "=", 1], // 官方
       ["released", "<=", "today"],
       ...generateCustomFilters(
-        process.env.RECLUDE_TAG,
+        process.env.EXCLUDE_TAG,
         "!=",
         "dtag",
         true,
         "and"
       ), // 自定义标签排除
       ...generateCustomFilters(
-        process.env.RECLUDE_VERSION,
+        process.env.EXCLUDE_VERSION,
         "!=",
         "rtype",
         false,
