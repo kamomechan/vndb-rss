@@ -178,46 +178,27 @@ const generateImageTags = (images) => {
   return validImages.join("<br>"); // 用换行符分隔多个图片
 };
 
-// 过滤自定义标签
-function generateTagFilters(
-  envTagValue = process.env.RECLUDE_TAG,
-  operator = "!=",
-  filterKey = "dtag"
-) {
+// 过滤自定义条件
+function generateCustomFilters(envValue, operator, filterKey, needsVN) {
   // 处理未定义或空值，按逗号分隔后过滤无效项
-  const tags = (envTagValue || "")
+  const values = (envValue || "")
     .split(",")
-    .map((tag) => tag.trim())
-    .filter((tag) => tag); // 移除空字符串
-
-  // 如果没有标签，返回空数组（不影响 filters 结构）
-  if (tags.length === 0) return [];
-
-  // 否则返回完整条件 [["vn", "=", ["and", ...]]]
-  return [
-    ["vn", "=", ["and", ...tags.map((tag) => [filterKey, operator, tag])]],
-  ];
-}
-
-// 过滤自定义版本
-function generateVersionFilters(
-  envVersionValue = process.env.RECLUDE_VERSION,
-  operator = "!=",
-  filterKey = "rtype"
-) {
-  // 处理未定义或空值，按逗号分隔后过滤无效项
-  const versions = (envVersionValue || "")
-    .split(",")
-    .map((version) => version.trim())
-    .filter((version) => version); // 过滤掉空字符串
+    .map((value) => value.trim())
+    .filter((value) => value); // 过滤掉空字符串
 
   // 如果没有有效值，返回空数组
-  if (versions.length === 0) return [];
+  if (values.length === 0) return [];
 
   // 否则返回完整条件
-  return [
-    ["and", ...versions.map((version) => [filterKey, operator, version])],
-  ];
+  return needsVN
+    ? [
+        [
+          "vn",
+          "=",
+          ["and", ...values.map((value) => [filterKey, operator, value])],
+        ],
+      ]
+    : [["and", ...values.map((value) => [filterKey, operator, value])]];
 }
 
 // OPML 生成函数
@@ -366,7 +347,7 @@ app.get("/unofficial", async (req, res) => {
       ["official", "!=", 1], // 非官方
       ["released", "<=", "today"],
       ["medium", "=", "in"], //筛选internet download版
-      ...generateTagFilters(), // 展开二维数组,过滤自定义标签
+      ...generateCustomFilters(process.env.RECLUDE_TAG, "!=", "dtag", true), // 自定义标签排除
     ];
 
     const rssXml = await generateRSS(
@@ -397,8 +378,13 @@ app.get("/official", async (req, res) => {
       ["official", "=", 1], // 官方
       ["released", "<=", "today"],
       ["medium", "=", "in"], //筛选internet download版
-      ...generateTagFilters(), // 展开二维数组,过滤自定义标签
-      ...generateVersionFilters(), //过滤自定义版本
+      ...generateCustomFilters(process.env.RECLUDE_TAG, "!=", "dtag", true), // 自定义标签排除
+      ...generateCustomFilters(
+        process.env.RECLUDE_VERSION,
+        "!=",
+        "rtype",
+        false
+      ), // 自定义版本排除
     ];
 
     const rssXml = await generateRSS(
@@ -427,8 +413,13 @@ app.get("/offi-jp", async (req, res) => {
       ["official", "=", 1], // 官方
       ["released", "<=", "today"],
       ["medium", "=", "in"], //筛选 internet download版
-      ...generateTagFilters(), // 展开二维数组,过滤自定义标签
-      ...generateVersionFilters(), //过滤自定义版本
+      ...generateCustomFilters(process.env.RECLUDE_TAG, "!=", "dtag", true), // 自定义标签排除
+      ...generateCustomFilters(
+        process.env.RECLUDE_VERSION,
+        "!=",
+        "rtype",
+        false
+      ), // 自定义版本排除
     ];
 
     const rssXml = await generateRSS(
