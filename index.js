@@ -61,7 +61,13 @@ function generateFormatNotes(notes) {
     .replace(/\[i\](.*?)\[\/i\]/g, "<em>$1</em>") // 斜体
     .replace(/\[u\](.*?)\[\/u\]/g, "<u>$1</u>") // 下划线
     .replace(/\[s\](.*?)\[\/s\]/g, "<del>$1</del>") // 删除线
-    .replace(/\[url=(.*?)\](.*?)\[\/url\]/g, '<a href="$1">$2</a>') // 链接
+    .replace(/\[url=(.*?)\](.*?)\[\/url\]/g, function (match, url, text) {
+      // 处理相对URL，转换为完整的VNDB URL
+      if (url.startsWith("/")) {
+        url = "https://vndb.org" + url;
+      }
+      return `<a href="${url}">${text}</a>`;
+    }) // 链接
     .replace(
       /\[spoiler\](.*?)\[\/spoiler\]/g,
       '<span class="spoiler">$1</span>'
