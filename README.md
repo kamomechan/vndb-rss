@@ -106,7 +106,7 @@ RSS 阅读器分别是开源的 [fluent-reader](https://github.com/yang991178/fl
 
    - `TOKEN` : 你的 VNDB token
    - `SAFETY_MODE`: NSFW 表示不过滤非安全图片，SFW 表示过滤非安全图片。默认值为 SFW，只展示安全的图片(推送条目没有被过滤，只是不展示 NSFW 图片而已) (可选)
-   - `HOST` : 你的域名或 vercel 即将分配的域名(不加 http 协议前缀)(默认值为 127.0.0.1)
+   - `DOMAIN` : 你的域名或 vercel 即将分配的域名(不加 http 协议前缀)
 
    其余配置请见 `.env` 文件，如需设置缓存和条目获取数量，请确保设置符合 [VNDB API 条款](https://api.vndb.org/kana#usage-terms)，建议保持默认即可
 
