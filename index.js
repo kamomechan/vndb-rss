@@ -8,6 +8,7 @@ import { readFileSync } from "fs";
 const app = express();
 const port = Number(process.env.PORT);
 const host = process.env.HOST;
+const domain = process.env.DOMAIN;
 
 // 缓存配置
 const CACHE_TTL = Number(process.env.CACHE_TIME);
@@ -189,11 +190,11 @@ function generateCustomFilters(
 // OPML 生成函数
 function generateOPML() {
   const feeds = [
-    { title: "民间汉化", xmlUrl: `https://${host}/uo-ch` },
-    { title: "Fan TL", xmlUrl: `https://${host}/uo-en` },
-    { title: "官方中文", xmlUrl: `https://${host}/offi-ch` },
-    { title: "Official TL", xmlUrl: `https://${host}/offi-en` },
-    { title: "公式日本語", xmlUrl: `https://${host}/offi-jp` },
+    { title: "民间汉化", xmlUrl: `https://${domain}/uo-ch` },
+    { title: "Fan TL", xmlUrl: `https://${domain}/uo-en` },
+    { title: "官方中文", xmlUrl: `https://${domain}/offi-ch` },
+    { title: "Official TL", xmlUrl: `https://${domain}/offi-en` },
+    { title: "公式日本語", xmlUrl: `https://${domain}/offi-jp` },
   ];
 
   return `<?xml version="1.0" encoding="UTF-8"?>
@@ -211,7 +212,7 @@ function generateOPML() {
         text="${feed.title}"
         title="${feed.title}"
         xmlUrl="${feed.xmlUrl}"
-        htmlUrl="${host}"/>
+        htmlUrl="${domain}"/>
       `
         )
         .join("")}
