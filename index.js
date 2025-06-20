@@ -299,12 +299,11 @@ async function generateRSS(req, filters, title, description) {
       const langText = generateLanguageLabel(req.path, item.languages);
 
       // 判断路由是否为中文或日文路由，若是则设置标题优先级高的为alttitle，这是由于title默认是罗马音或英语，alttitle一般为译名或原名
+      //由于Official TL一般会有英语译名，因此设置title;而英文社区翻译(Fan TL)一般为罗马音标题，因此设置alttitle
       const shouldUseAltTitle =
-        // 包含"官方中文"但不包含"/"（即不包含"官方中文/Official TL"）
-        (langText.includes("官方中文") && !langText.includes("/")) ||
-        // 包含"民间汉化"但不包含"/"（即不包含"民间汉化/Fan TL"）
-        (langText.includes("民间汉化") && !langText.includes("/")) ||
-        // 包含"公式日本語"
+        langText.includes("官方中文") ||
+        langText.includes("民间汉化") ||
+        langText.includes("Fan TL") ||
         langText.includes("公式日本語");
 
       // 设置标题
