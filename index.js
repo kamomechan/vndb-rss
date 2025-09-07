@@ -2,13 +2,14 @@ import "dotenv/config";
 import axios from "axios";
 import RSS from "rss";
 import express from "express";
-import { join } from "path";
-import { readFileSync } from "fs";
+import { join } from "node:path";
+import { readFileSync } from "node:fs";
 
 const app = express();
 const port = Number(process.env.PORT);
 const host = process.env.HOST;
 const domain = process.env.DOMAIN;
+const baseUrl = domain || `http://${host}:${port}`;
 
 // 缓存配置
 const CACHE_TTL = Number(process.env.CACHE_TIME);
@@ -190,11 +191,11 @@ function generateCustomFilters(
 // OPML 生成函数
 function generateOPML() {
   const feeds = [
-    { title: "民间汉化", xmlUrl: `https://${domain}/uo-ch` },
-    { title: "Fan TL", xmlUrl: `https://${domain}/uo-en` },
-    { title: "官方中文", xmlUrl: `https://${domain}/offi-ch` },
-    { title: "Official TL", xmlUrl: `https://${domain}/offi-en` },
-    { title: "公式日本語", xmlUrl: `https://${domain}/offi-jp` },
+    { title: "民间汉化", xmlUrl: `${baseUrl}/uo-ch` },
+    { title: "Fan TL", xmlUrl: `${baseUrl}/uo-en` },
+    { title: "官方中文", xmlUrl: `${baseUrl}/offi-ch` },
+    { title: "Official TL", xmlUrl: `${baseUrl}/offi-en` },
+    { title: "公式日本語", xmlUrl: `${baseUrl}/offi-jp` },
   ];
 
   return `<?xml version="1.0" encoding="UTF-8"?>
@@ -211,8 +212,7 @@ function generateOPML() {
         type="rss"
         text="${feed.title}"
         title="${feed.title}"
-        xmlUrl="${feed.xmlUrl}"
-        htmlUrl="${domain}"/>
+        xmlUrl="${feed.xmlUrl}"/>
       `
         )
         .join("")}
@@ -233,7 +233,7 @@ async function generateRSS(req, filters, title, description) {
     title: title,
     description: description,
     site_url: "https://vndb.org",
-    feed_url: `http://${host}:${port}${req.baseUrl}`,
+    feed_url: `${baseUrl}${currentPath}`,
     language: "zh",
   });
 
@@ -265,7 +265,7 @@ async function generateRSS(req, filters, title, description) {
 
       // 根据路由类型匹配语言
       const langText = (() => {
-        switch (req.path) {
+        switch (currentPath) {
           case "/uo-ch":
             return "[民间汉化]";
           case "/uo-en":
@@ -286,16 +286,16 @@ async function generateRSS(req, filters, title, description) {
 
       // 遍历支持平台
       const platformsText =
-        (item.platforms?.map((platform) => `[${platform}]`).join(" ") || "") +
+        (item.platforms?.map((platform) => `[${platform}]`)?.join(" ") || "") +
         "<br><br>";
 
       // 判断路由是否为中文或日文路由，若是则设置标题优先级高的为alttitle，这是由于title默认是罗马音或英语，alttitle一般为译名或原名
       //由于Official TL一般会有英语译名，因此设置title;而英文社区翻译(Fan TL)一般为罗马音标题，因此设置alttitle
       if (
-        req.path === "/uo-ch" ||
-        req.path === "/offi-ch" ||
-        req.path === "/offi-jp" ||
-        req.path === "/uo-en"
+        currentPath === "/uo-ch" ||
+        currentPath === "/offi-ch" ||
+        currentPath === "/offi-jp" ||
+        currentPath === "/uo-en"
       ) {
         customTitle = `${item.alttitle || item.title}`;
       } else {
@@ -598,7 +598,7 @@ app.get("/export-opml", (req, res) => {
 app.get("/", (req, res) => {
   try {
     const htmlPath = join(process.cwd(), "views/home.html");
-    const htmlContent = readFileSync(htmlPath, "utf-8");
+    const htmlContent = readFileSync(htmlPath, { encoding: "utf-8" });
     res.send(htmlContent);
   } catch (err) {
     console.error("加载HTML文件失败:", err);
