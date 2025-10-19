@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "target": "es2023",
+    "module": "node20",
+    "moduleResolution": "node16",
+    "esModuleInterop": true,
+    "noEmitOnError": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "noImplicitThis": true
+  },
+  "include": ["index.ts"]
+}

@@ -36,15 +36,15 @@ RSS 阅读器分别是开源的 [fluent-reader](https://github.com/yang991178/fl
 
 - 支持导出 OPML
 
-当前仓库包含多个分支版本，根据语言支持和是否包含封面图进行区分：
+当前仓库包含两个分支版本，根据语言支持进行区分：
 
-- **v1** / **v1-image**：共有 5 个路由：
+- **v1**：共有 5 个路由：
 
   - `/offi-ch`、`/offi-en`、`/offi-jp`（官方中文 / 英文 / 日文）
 
   - `/uo-ch`、`/uo-en`（民间汉化 / Fan Translation）
 
-- **v2** / **v2-image**：基于 v1 分支进行路由合并，仅保留 3 个路由：
+- **main**：基于 v1 分支进行路由合并，仅保留 3 个路由：
 
   - `/official`：包含官方中文与官方英文
 
@@ -52,17 +52,13 @@ RSS 阅读器分别是开源的 [fluent-reader](https://github.com/yang991178/fl
 
   - `/unofficial`：包含民间汉化与 Fan Translation
 
-- 含 `-image` 后缀的分支会在 RSS 中附带封面图，普通分支则不会。
-
 ✅ 推荐选择：
 
-- 若你**同时使用中文和英文**，推荐部署简洁合并的 **v2 / v2-image** 分支。
+- 若你**同时使用中文和英文**，推荐部署简洁合并的 **v2** 分支。
 
-- 若你**仅关注某一语言（如中文或英文）**，可选择更细分的 **v1 / v1-image** 分支。
+- 若你**仅关注某一语言（如中文或英文）**，可选择更细分的 **v1** 分支。
 
 ## 部署
-
-部署前需从 [VNDB](https://vndb.org/) 注册账号获取 token (My Profile->Applications->Create new token)
 
 ### 部署到服务器
 
@@ -83,18 +79,28 @@ RSS 阅读器分别是开源的 [fluent-reader](https://github.com/yang991178/fl
    },
    ```
 
-3. 根据`.env`文件注释进行配置
+3. 根据`.env.example`文件注释进行配置
 
    ```bash
+   cp .env.example .env
    vim .env
    ```
 
 4. 运行
 
-   ```bash
-   npm install
-   npm start
-   ```
+   - 生产环境运行
+
+     ```bash
+     npm install
+     npm run build
+     npm start
+     ```
+
+   - 开发环境运行
+     ```bash
+     npm install
+     npm run dev
+     ```
 
 ### 部署到 vercel
 
@@ -102,13 +108,9 @@ RSS 阅读器分别是开源的 [fluent-reader](https://github.com/yang991178/fl
 
    [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/import/project?template=https://github.com/kamomechan/vndb-rss)
 
-2. 转到 Environment Variables 选项卡并添加以下变量：
+2. 转到 Environment Variables 选项卡，根据`.env.example`注释，结合自己情况添加字段
 
-   - `TOKEN` : 你的 VNDB token
-   - `SAFETY_MODE`: NSFW 表示不过滤非安全图片，SFW 表示过滤非安全图片。默认值为 SFW，只展示安全的图片(推送条目没有被过滤，只是不展示 NSFW 图片而已) (可选)
-   - `DOMAIN` : 你的域名或 vercel 即将分配的域名(需带有 http 协议前缀)
-
-   其余配置请见 `.env` 文件，如需设置缓存和条目获取数量，请确保设置符合 [VNDB API 条款](https://api.vndb.org/kana#usage-terms)，建议保持默认即可
+   如需设置缓存和条目获取数量，请确保设置符合 [VNDB API 条款](https://api.vndb.org/kana#usage-terms)，建议保持默认即可
 
    > API access is rate-limited in order to keep server resources in
    > check. The server will allow up to 200 requests per 5 minutes and up to
