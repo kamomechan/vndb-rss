@@ -104,11 +104,12 @@ RSS 阅读器分别是开源的 [fluent-reader](https://github.com/yang991178/fl
 
 ### 部署到 vercel
 
-1. 点击下面的按钮将其部署到 vercel。
+1. 选择你想要部署的分支，以下两个按钮分别表示部署 main 分支或 v1 分支到 Vercel
 
    [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/import/project?template=https://github.com/kamomechan/vndb-rss)
+   [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/import/project?template=https://github.com/kamomechan/vndb-rss/tree/v1)
 
-2. 转到 Environment Variables 选项卡，根据`.env.example`注释，结合自己情况添加字段
+2. 转到 Settings -> Environment Variables -> import .env, 导入仓库的`.env.example`文件, 之后根据自己情况配置属性值，`DOMAIN`属性设置为 vercel 分配的域名，不然 OPML 导出时会不知道域名，默认为`http://127.0.0.1:3000`
 
    如需设置缓存和条目获取数量，请确保设置符合 [VNDB API 条款](https://api.vndb.org/kana#usage-terms)，建议保持默认即可
 
@@ -118,8 +119,6 @@ RSS 阅读器分别是开源的 [fluent-reader](https://github.com/yang991178/fl
    > seconds will be aborted. These limits should be more than enough for
    > most applications, but if this is still too limiting for you, don’t
    > hesitate to get in touch.
-
-3. vercel 默认部署 main 分支，可在 settings->git->Production Branch 中更改生产分支
 
 ## 常见问题
 
