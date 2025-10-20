@@ -54,7 +54,7 @@ RSS 阅读器分别是开源的 [fluent-reader](https://github.com/yang991178/fl
 
 ✅ 推荐选择：
 
-- 若你**同时使用中文和英文**，推荐部署简洁合并的 **v2** 分支。
+- 若你**同时使用中文和英文**，推荐部署简洁合并的 **main** 分支。
 
 - 若你**仅关注某一语言（如中文或英文）**，可选择更细分的 **v1** 分支。
 
@@ -107,6 +107,7 @@ RSS 阅读器分别是开源的 [fluent-reader](https://github.com/yang991178/fl
 1. 选择你想要部署的分支，以下两个按钮分别表示部署 main 分支或 v1 分支到 Vercel
 
    [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/import/project?template=https://github.com/kamomechan/vndb-rss)
+
    [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/import/project?template=https://github.com/kamomechan/vndb-rss/tree/v1)
 
 2. 转到 Settings -> Environment Variables -> import .env, 导入仓库的`.env.example`文件, 之后根据自己情况配置属性值，`DOMAIN`属性设置为 vercel 分配的域名，不然 OPML 导出时会不知道域名，默认为`http://127.0.0.1:3000`

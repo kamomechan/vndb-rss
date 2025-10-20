@@ -128,7 +128,7 @@ function generateImageTags(images: ImageItem[]) {
       // 2 = Explicit/Brutal
       const SAFETY_MODE = process.env.SAFETY_MODE || "SFW";
       if (SAFETY_MODE !== "NSFW") {
-        if (image.sexual >= 1 || image.violence >= 1 || image.votecount < 1) {
+        if (image.sexual !== 0 || image.violence !== 0 || image.votecount < 3) {
           console.log(`Exclude image:${image.url}`);
           return false;
         }
