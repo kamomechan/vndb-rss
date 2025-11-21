@@ -62,31 +62,42 @@ RSS 阅读器分别是开源的 [fluent-reader](https://github.com/yang991178/fl
 
 ### 部署到服务器
 
-1. 克隆仓库，并切换到你想要运行的分支
+1. 克隆仓库
 
    ```bash
-    git clone https://github.com/kamomechan/vndb-rss.git
-    cd vndb-rss
-    git checkout <branch>
+   git clone https://codeberg.org/nokutan/vndb-rss.git
    ```
 
-2. 下载 [nodejs](https://nodejs.org/en/download)，版本号应大于等于下列展示的
+   或者
+
+   ```bash
+   git clone https://github.com/kamomechan/vndb-rss.git
+   ```
+
+2. 切换到你想要运行的分支
+
+   ```shell
+   cd vndb-rss
+   git checkout <branch>
+   ```
+
+3. 下载 [nodejs](https://nodejs.org/en/download)，版本号应大于等于下列展示的
 
    ```json
-    "engines": {
+   "engines": {
     "node": ">=22.15.0",
     "npm": ">=10.9.0"
    },
    ```
 
-3. 根据`.env.example`文件注释进行配置
+4. 根据`.env.example`文件注释进行配置
 
    ```bash
    cp .env.example .env
    vim .env
    ```
 
-4. 运行
+5. 运行
 
    - 生产环境运行
 
